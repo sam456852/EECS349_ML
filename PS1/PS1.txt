@@ -1,0 +1,44 @@
+1.  Based on the histograms, which attribute appears to be the most useful for classifying wine, and why?
+
+     Density; because compared with other histograms, the density histogram seems the “bad” and “good” wine is the most closely separated into two parts
+
+2. What is the accuracy - the percentage of correctly classified instances - achieved by ZeroR when you run it on the training set? Why is ZeroR a helpful baseline for interpreting the performance of other classifiers?
+
+    62.381 %; ZeroR classifier simply predicts the majority category, so the accuracy of ZeroR means the least useful accuracy of any classifiers which means other classifiers of which the accuracy is lower than the accuracy of ZeroR should be useless
+
+3.  Using a decision tree Weka learned over the training set, what is the most informative single feature for this task, and what is its influence on wine quality? Does this match your answer from question 1?
+
+    Alcohol; the higher the alcohol the better the quality
+
+4.  What is 10-fold cross-validation? What is the main reason for the difference between the percentage of Correctly Classified Instances when you measured accuracy on the training set itself, versus when you ran 10-fold cross-validation over the training set? Why is cross-validation important?
+
+       Use training set  		 percentage of Correctly Classified Instances    95.873  %
+       Use 10-fold Cross Validation      percentage of Correctly Classified Instances    85.9788 %
+
+		1)10-fold Cross Validation: Break data into 10 sets of size n/10. Randomly train on 9 datasets and test on 1.Repeat 10 times and take a mean accuracy.
+        2)As the explained above, the training set of 10-fold Cross Validation is smaller than the original one and Cross-validation gives a pessimistically biased estimate of performance because most statistical models will improve if the training set is made larger
+        3)The k-fold cross-validation has a lower variance than a single hold-out set, which can be very important if the amount of data available is limited
+
+5.  What is the "command-line" for the model you are submitting? For example, "J48 -C 0.25 -M 2". What is the reported accuracy for your model using 10-fold cross-validation?
+
+    RandomForest -P 99 -I 101 -num-slots 1 -K 0 -M 1.0 -V 0.001 -S 1
+    90.8466 %
+
+6. In a few sentences, describe how you chose the model you are submitting. Be sure to mention your validation strategy and whether you tried varying any of the model parameters.
+
+    First I tried most of the classifiers with default setting to find the highest percentage of accuracy, then I found RandomForest with the highest
+    Then I tried to increase or decrease each attribute of the classifier and I found that if I decrease bagSizePercent to 99 and increase numIterations to 101, the accuracy would increase
+
+7.  A Wired magazine article from several years ago on the 'Peta Age' suggests that increasingly huge data sets, coupled with machine learning techniques, makes model building obsolete. In particular it says: This is a world where massive amounts of data and applied mathematics replace every other tool that might be brought to bear. Out with every theory of human behavior, from linguistics to sociology. Forget taxonomy, ontology, and psychology… In a short paragraph (about four sentences), state whether you agree with this statement, and why or why not.
+
+    Disagree; since machine learning is actually a tool for specialists in many different research fields, people still need to learn expertise in different domain so that they can better apply machine learning. Besides, machine learning is a way to approach or estimate accuracy, but something like derivation of equation in physics cannot be done by machine without experts’ knowledge and imaginary
+
+8. Briefly explain what strategy you used to obtain the Classifiers A and B that performed well on one of the car or wine data sets, and not the other.
+                                                                         		                                                             w                                                                                           wine_acc                             car_acc
+    Classifier A : MultilayerPerceptron -L 0.3 -M 0.2 -N 500 -V 0 -S 0 -E 20 -H a           84.9735 %                            99.2437 %
+    Classifier B : LWL by default                                                           80.9524 %                            70.5042 %
+    I found that the classifiers could be used on car dataset is less than the wine dataset and in most classifiers the the accuracy of car is better than wine. Hence I selected the better and worse classifiers for car datasets first and tried them on wine datasets
+
+9. Name one major difference between the output space for the car data set vs. the wine data set, that might make some classifiers that are applicable to the wine data not applicable to the car data.
+
+   The car datasets have less attributes and 4 outputs while the wine datasets has only 2 outputs  
