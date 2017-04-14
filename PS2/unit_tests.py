@@ -96,4 +96,5 @@ if __name__ == '__main__':
     testID3AndEvaluate()
     testID3AndTest()
     testPruning()
-    testPruningOnHouseData("/Users/sam/Documents/NU/349 MACHINE LEARNING/PS2/house_votes_84.data")
+    testPruningOnHouseData("./house_votes_84.data")
+    #ID3.drawTest("./house_votes_84.data")

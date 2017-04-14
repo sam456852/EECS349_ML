@@ -1,5 +1,8 @@
 from node import Node
-import math
+import math, parse, random
+import numpy as np
+import pylab as pl
+
 
 def ID3(examples, default):
   '''
@@ -23,7 +26,7 @@ def ID3(examples, default):
 
 
   for value in attributeVals:
-      tree.children[value] = ID3(splitDataByVal(examples, attribute, value), 0)
+      tree.children[value] = ID3(splitDataByVal(examples, attribute, value), default)
 
   return tree
 
@@ -33,24 +36,77 @@ def prune(node, examples):
   Takes in a trained tree and a validation set of examples.  Prunes nodes in order
   to improve accuracy on the validation data; the precise pruning strategy is up to you.
   '''
+
+  for key in node.children.keys():
+      if isinstance(node.children[key], Node) and len(splitDataByVal(examples, node.label, key)) > 0:
+          prune(node.children[key], splitDataByVal(examples, node.label, key))
+
+
+
+
+
   cList = [example['Class'] for example in examples]
   if '?' in cList:
-      classifies.remove('?')
+      cList.remove('?')
+
   baseAcc = test(node, examples)
+  newKey = None
+  maxPruned = None
+  maxAcc = 0
   for key in node.children.keys():
       tmp = node.children.pop(key)
       pruned = None
       for res in cList:
           node.children[key] = res
-          if test(node, examples) >= baseAcc:
-              baseAcc = test(node, examples)
-              pruned = res
+          #if test(node, examples) > baseAcc:
+          if baseAcc < test(node, examples) and maxAcc < test(node, examples):
+              #baseAcc = test(node, examples)
+              maxAcc = test(node, examples)
+              maxPruned = res
+              newKey = key
+      node.children[key] = tmp
+  if maxPruned != None and newKey != None:
+      node.children[newKey] = maxPruned
+
+      '''
       if pruned == None:
           node.children[key] = tmp
+      else:
+          node.children[key] = pruned
+      '''
 
+  '''
   for each in node.children.values():
       if isinstance(each, Node):
           prune(each, examples)
+  '''
+
+
+
+'''
+  if isinstance(node, Node):
+      for each in node.children.values():
+          prune(each, examples)
+
+      cList = [example['Class'] for example in examples]
+      if '?' in cList:
+          cList.remove('?')
+
+      baseAcc = test(node, examples)
+      for key in node.children.keys():
+          tmp = node.children.pop(key)
+          pruned = None
+          for res in cList:
+              node.children[key] = res
+              if test(node, examples) > baseAcc:
+                  baseAcc = test(node, examples)
+                  pruned = res
+          if pruned == None:
+              node.children[key] = tmp
+
+'''
+
+
 
 
 def test(node, examples):
@@ -61,6 +117,8 @@ def test(node, examples):
   dataset = dropUnclear(examples)
 
   total = len(dataset)
+  if total == 0 :
+      return 0.0
   correct = 0.0
   for example in dataset:
       if evaluate(node, example) == example['Class']:
@@ -94,7 +152,7 @@ def calcEnt(dataSet):
             labelCounts[label] = 0
         labelCounts[label] += 1
     ent = 0.0
-    for key in labelCounts:
+    for key in labelCounts.keys():
         prb = float(labelCounts[key])/num
         ent -= prb * math.log(prb,2)
     return ent
@@ -140,7 +198,7 @@ def attributeToSplit(dataset):
 def findMajority(dataset):
     classCount = {}
     for data in dataset:
-        if data not in dataset.keys():
+        if data not in classCount.keys():
             classCount[data] = 0
         classCount[data] += 1
     return max(classCount)
@@ -161,3 +219,55 @@ def dropUnclear(dataset):
         if '?' not in data.values():
             res.append(data)
     return res
+
+def drawTest(inFile):
+      prunedSum = [0]
+      withoutPrunedSum = [0]
+
+      trainLenSum = [0]
+      data = parse.parse(inFile)
+      dataLen = len(data)
+
+      for trainLen in range(10, 300, 10):
+          print trainLen
+          withPruning = []
+          withoutPruning = []
+          trainLenSum.append(trainLen)
+
+          for i in range(100):
+            random.shuffle(data)
+            train = data[:trainLen]
+            valid = data[trainLen:(dataLen + trainLen)/2]
+            testP = data[(dataLen + trainLen)/2:]
+
+            tree = ID3(train, 'democrat')
+
+            prune(tree, valid)
+
+            acc = test(tree, testP)
+            #print "pruned tree test accuracy: ",acc
+            withPruning.append(acc)
+            tree = ID3(train+valid, 'democrat')
+            acc = test(tree, testP)
+            #print "no pruning test accuracy: ",acc
+            withoutPruning.append(acc)
+
+          prunedSum.append(sum(withPruning)/len(withPruning))
+          withoutPrunedSum.append(sum(withoutPruning)/len(withoutPruning))
+
+      pl.plot(trainLenSum, withoutPrunedSum, 'g')
+      pl.plot(trainLenSum, prunedSum, 'r')
+
+      pl.title("Pruned vs Not Pruned")
+      pl.xlabel("Train data size")
+      pl.ylabel("Accuracy")
+
+      pl.xlim(0, 300)
+      pl.ylim(0.0, 1.0)
+
+      pl.show()
+
+# def DFS(tree, dataset):
+#     if not isinstance(tree, Node):
+#         return tree
+#     for key in tree.children.keys():
