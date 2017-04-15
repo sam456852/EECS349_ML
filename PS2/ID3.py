@@ -16,6 +16,8 @@ def ID3(examples, default):
       return cList[0]
   if (len(examples[0]) == 1):
       return findMajority(cList)
+
+  # decide which attribute to split
   attribute = attributeToSplit(examples)
   tree = Node()
   tree.label = attribute
@@ -37,6 +39,7 @@ def prune(node, examples):
   to improve accuracy on the validation data; the precise pruning strategy is up to you.
   '''
 
+  # depth-first traverse
   for key in node.children.keys():
       if isinstance(node.children[key], Node) and len(splitDataByVal(examples, node.label, key)) > 0:
           prune(node.children[key], splitDataByVal(examples, node.label, key))
@@ -100,6 +103,9 @@ def evaluate(node, example):
   return node
 
 def calcEnt(dataSet):
+    '''
+    calculate the Entropy for given dataset
+    '''
     num = len(dataSet)
     labelCounts = {}
     for data in dataSet:
@@ -114,6 +120,9 @@ def calcEnt(dataSet):
     return ent
 
 def splitDataByVal(dataset, attribute, val):
+    '''
+    split given dataset by given attribute and value
+    '''
     subkey = dataset[0].keys()
     subkey.remove(attribute)
     resDataSet = []
@@ -123,6 +132,9 @@ def splitDataByVal(dataset, attribute, val):
     return resDataSet
 
 def attributeToSplit(dataset):
+    '''
+    select most significant attribute for given dataset
+    '''
     attributes = dataset[0].keys()
     attributes.remove('Class')
     totalData = len(dataset)
@@ -152,6 +164,9 @@ def attributeToSplit(dataset):
     return maxFeature
 
 def findMajority(dataset):
+    '''
+    find the most commom label for given dataset
+    '''
     classCount = {}
     for data in dataset:
         if data not in classCount.keys():
@@ -160,6 +175,9 @@ def findMajority(dataset):
     return max(classCount)
 
 def drawTree(tree):
+    '''
+    print out the given tree, used for test
+    '''
     if not isinstance(tree, Node):
         return tree
     nextTree = {}
@@ -170,6 +188,9 @@ def drawTree(tree):
     return newTree
 
 def dropUnclear(dataset):
+    '''
+    drop value '?' in given dataset
+    '''
     res = []
     for data in dataset:
         if '?' not in data.values():
@@ -177,6 +198,9 @@ def dropUnclear(dataset):
     return res
 
 def drawTest(inFile):
+      '''
+      plot the accuracy
+      '''
       prunedSum = []
       withoutPrunedSum = []
 

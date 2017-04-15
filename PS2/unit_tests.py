@@ -94,4 +94,5 @@ if __name__ == '__main__':
     testID3AndTest()
     testPruning()
     testPruningOnHouseData("./house_votes_84.data")
-    # ID3.drawTest("./house_votes_84.data")
+    # plot the accuracy
+    ID3.drawTest("./house_votes_84.data")
