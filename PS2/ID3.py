@@ -41,10 +41,6 @@ def prune(node, examples):
       if isinstance(node.children[key], Node) and len(splitDataByVal(examples, node.label, key)) > 0:
           prune(node.children[key], splitDataByVal(examples, node.label, key))
 
-
-
-
-
   cList = [example['Class'] for example in examples]
   if '?' in cList:
       cList.remove('?')
@@ -67,45 +63,6 @@ def prune(node, examples):
       node.children[key] = tmp
   if maxPruned != None and newKey != None:
       node.children[newKey] = maxPruned
-
-      '''
-      if pruned == None:
-          node.children[key] = tmp
-      else:
-          node.children[key] = pruned
-      '''
-
-  '''
-  for each in node.children.values():
-      if isinstance(each, Node):
-          prune(each, examples)
-  '''
-
-
-
-'''
-  if isinstance(node, Node):
-      for each in node.children.values():
-          prune(each, examples)
-
-      cList = [example['Class'] for example in examples]
-      if '?' in cList:
-          cList.remove('?')
-
-      baseAcc = test(node, examples)
-      for key in node.children.keys():
-          tmp = node.children.pop(key)
-          pruned = None
-          for res in cList:
-              node.children[key] = res
-              if test(node, examples) > baseAcc:
-                  baseAcc = test(node, examples)
-                  pruned = res
-          if pruned == None:
-              node.children[key] = tmp
-
-'''
-
 
 
 
@@ -133,14 +90,13 @@ def evaluate(node, example):
   '''
 
   while isinstance(node, Node):
-      #key1 = node.label
+
       key2 = example[node.label]
       if key2 not in node.children.keys():
           node = node.children.values().pop(0)
       else:
           node = node.children[key2]
-      #node = key3
-      #node = node.children[example[node.label]]
+
   return node
 
 def calcEnt(dataSet):
@@ -221,14 +177,14 @@ def dropUnclear(dataset):
     return res
 
 def drawTest(inFile):
-      prunedSum = [0]
-      withoutPrunedSum = [0]
+      prunedSum = []
+      withoutPrunedSum = []
 
-      trainLenSum = [0]
+      trainLenSum = []
       data = parse.parse(inFile)
       dataLen = len(data)
 
-      for trainLen in range(10, 300, 10):
+      for trainLen in range(10, 301, 10):
           print trainLen
           withPruning = []
           withoutPruning = []
@@ -245,29 +201,36 @@ def drawTest(inFile):
             prune(tree, valid)
 
             acc = test(tree, testP)
-            #print "pruned tree test accuracy: ",acc
+
             withPruning.append(acc)
             tree = ID3(train+valid, 'democrat')
             acc = test(tree, testP)
-            #print "no pruning test accuracy: ",acc
+
             withoutPruning.append(acc)
 
           prunedSum.append(sum(withPruning)/len(withPruning))
           withoutPrunedSum.append(sum(withoutPruning)/len(withoutPruning))
 
-      pl.plot(trainLenSum, withoutPrunedSum, 'g')
-      pl.plot(trainLenSum, prunedSum, 'r')
-
+      pl.plot(trainLenSum, withoutPrunedSum, 'g', label=u'without pruning')
+      pl.plot(trainLenSum, prunedSum, 'r', label=u'pruning')
+      pl.legend()
       pl.title("Pruned vs Not Pruned")
-      pl.xlabel("Train data size")
+      pl.xlabel("Training data size")
       pl.ylabel("Accuracy")
 
       pl.xlim(0, 300)
-      pl.ylim(0.0, 1.0)
+
 
       pl.show()
 
-# def DFS(tree, dataset):
-#     if not isinstance(tree, Node):
-#         return tree
-#     for key in tree.children.keys():
+
+      improved = []
+
+      for i in range(len(prunedSum)):
+          improved.append(float(prunedSum[i]) - withoutPrunedSum[i])
+
+      pl.title("Advantage of Pruning")
+      pl.xlabel("Training data size")
+      pl.ylabel("Accuracy")
+      pl.plot(trainLenSum, improved, 'b')
+      pl.show()

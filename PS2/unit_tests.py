@@ -16,7 +16,6 @@ def testPruning():
   data = [dict(a=1, b=0, Class=1), dict(a=1, b=1, Class=1), dict(a=0, b=1, Class=0), dict(a=0, b=0, Class=1)]
   validationData = [dict(a=1, b=0, Class=1), dict(a=1, b=1, Class=1), dict(a=0, b=0, Class=0), dict(a=0, b=0, Class=0)]
   tree = ID3.ID3(data, 0)
-  print ID3.drawTree(tree)
   ID3.prune(tree, validationData)
   if tree != None:
     ans = ID3.evaluate(tree, dict(a=0, b=0))
@@ -34,7 +33,6 @@ def testID3AndTest():
   dict(a=0, b=0, c=1, Class=0), dict(a=0, b=1, c=1, Class=0)]
   tree = ID3.ID3(trainData, 0)
   fails = 0
-  #print ID3.drawTree(tree)
   if tree != None:
     acc = ID3.test(tree, trainData)
     if acc == 1.0:
@@ -67,7 +65,6 @@ def testPruningOnHouseData(inFile):
     test = data[3*len(data)/4:]
 
     tree = ID3.ID3(train, 'democrat')
-    #print ID3.drawTree(tree)
     acc = ID3.test(tree, train)
     print "training accuracy: ",acc
     acc = ID3.test(tree, valid)
@@ -97,4 +94,4 @@ if __name__ == '__main__':
     testID3AndTest()
     testPruning()
     testPruningOnHouseData("./house_votes_84.data")
-    #ID3.drawTest("./house_votes_84.data")
+    # ID3.drawTest("./house_votes_84.data")
